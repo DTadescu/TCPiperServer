@@ -13,6 +13,7 @@ namespace TCPiperServer.Server
     {
         private TcpListener server;
         public Client.TCPClientWorker client { get; private set; }
+        public event Action<string> ErrorHappened = delegate { };
 
         public TCPServer (IPAddress ip, int port)
         {
@@ -48,12 +49,20 @@ namespace TCPiperServer.Server
                 try
                 {
                     client = new Client.TCPClientWorker( server.AcceptTcpClient());
+                    client.ErrorHappened += OnErrorHappened;
                     
                 }
-                catch { }
+                catch(Exception e) {
+                    ErrorHappened?.Invoke(e.ToString());
+                }
 
                 
             }
+        }
+
+        private void OnErrorHappened(string message)
+        {
+            ErrorHappened?.Invoke(message);
         }
 
     }

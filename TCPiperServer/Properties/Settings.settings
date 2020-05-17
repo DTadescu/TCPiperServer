@@ -1,7 +1,21 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TCPiperServer.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8050</Value>
+    </Setting>
+    <Setting Name="Interval" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="Status_noAction" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">No action. </Value>
+    </Setting>
+    <Setting Name="Status_awaiting" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Waiting for connection...</Value>
+    </Setting>
+    <Setting Name="Status_connected" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Connected. </Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

@@ -21,10 +21,12 @@ namespace TCPiperServer
         public Form1()
         {
             InitializeComponent();
+            RestoreSettings();
         }
 
         private void StartServer()
         {
+            SaveSettings();
             int port;
             busy = true;
             UpdateViewStates();
@@ -33,8 +35,9 @@ namespace TCPiperServer
             {
                 timerSend.Interval = Convert.ToInt32(numericInterval.Value);
                 timerSend.Start();
-                labelStatus.Text = "Waiting for connection...";
+                labelStatus.Text = Properties.Settings.Default.Status_awaiting;
                 server = new Server.TCPServer(IPAddress.Any, port);
+                server.ErrorHappened += OnErrorHappened;
                 Task listen = new Task(server.AcceptTCPClient);
                 listen.Start();
             }
@@ -51,7 +54,8 @@ namespace TCPiperServer
             if (server != null)
             {
                 server.Stop();
-                labelStatus.Text = "No action.";
+                server.ErrorHappened -= OnErrorHappened;
+                labelStatus.Text = Properties.Settings.Default.Status_noAction;
             }
             timerSend.Stop();
             counter = 0;
@@ -64,6 +68,30 @@ namespace TCPiperServer
             buttonStart.Enabled = !busy;
             textBoxPort.Enabled = !busy;
             numericInterval.Enabled = !busy;
+        }
+
+        private void RestoreSettings()
+        {
+            textBoxPort.Text = Properties.Settings.Default.Port.ToString();
+            numericInterval.Value = Properties.Settings.Default.Interval;
+        }
+
+        private void SaveSettings()
+        {
+            int port;
+            Int32.TryParse(textBoxPort.Text, out port);
+            if(port > 0)
+            {
+                Properties.Settings.Default.Port = port;
+            }
+            Properties.Settings.Default.Interval = numericInterval.Value;
+            Properties.Settings.Default.Save();
+         }
+
+        private void OnErrorHappened(string message)
+        {
+            MessageBox.Show(message);
+            StopServer();
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -83,13 +111,15 @@ namespace TCPiperServer
             {
                 if(server.client == null)
                 {
-                    counter++;
-                    labelStatus.Text = $"Waiting for connection... Attempt:{counter}";
-                    if (counter > 10) StopServer();
+                    //counter++;
+                    //labelStatus.Text = $"Waiting for connection... Attempt:{counter}";
+                    //if (counter > 10) StopServer();
                 }
                 else
                 {
+                    counter++;
                     server.client.WriteTestAsync();
+                    labelStatus.Text = Properties.Settings.Default.Status_connected + $"Pocket: {counter}";
                 }
             }
         }
@@ -98,6 +128,11 @@ namespace TCPiperServer
         {
             var ch = e.KeyChar;
             if (!Char.IsDigit(ch) && ch != 8) e.Handled = true;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSettings();
         }
     }
 }

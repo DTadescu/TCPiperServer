@@ -183,6 +183,7 @@
             this.MinimizeBox = false;
             this.Name = "Form1";
             this.Text = "TCPiperServer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.numericInterval)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);

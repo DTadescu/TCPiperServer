@@ -5,11 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 
 namespace TCPiperServer.Client
 {
     class TCPClientWorker
     {
+        public event Action<string> ErrorHappened = delegate { };
+
         private TcpClient client;
         private const int SIZE = 200;
         private const string testMessage = "Hello, dear friend! There is an excellent weather, doesn't it? " +
@@ -24,7 +27,7 @@ namespace TCPiperServer.Client
 
         public async void WriteTestAsync()
         {
-            if(client != null)
+            if(client != null && GetState(client) == TcpState.Established)
             {
                 counter++;
                 byte[] pocket = BitConverter.GetBytes(counter);
@@ -44,6 +47,10 @@ namespace TCPiperServer.Client
                     await ws.FlushAsync().ConfigureAwait(false);
                 }
             }
+            else
+            {
+                ErrorHappened?.Invoke("Connection is empty.");
+            }
         }
 
         public void Close()
@@ -54,8 +61,21 @@ namespace TCPiperServer.Client
                 {
                     client.Close();
                 }
-                catch { }
+                catch(Exception e) {
+                    ErrorHappened?.Invoke(e.ToString());
+                }
             }
+        }
+
+        private static TcpState GetState(TcpClient tcpClient)
+        {
+            var foo = IPGlobalProperties.GetIPGlobalProperties()
+              .GetActiveTcpConnections()
+              .SingleOrDefault(x => x.LocalEndPoint.Equals(tcpClient.Client.LocalEndPoint)
+                                 && x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint)
+              );
+
+            return foo != null ? foo.State : TcpState.Unknown;
         }
     }
 }
