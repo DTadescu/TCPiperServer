@@ -22,6 +22,7 @@ namespace TCPiperServer
         {
             InitializeComponent();
             RestoreSettings();
+            labelIP.Text = Utils.IPinformator.GetMyIp();
         }
 
         private void StartServer()
@@ -141,6 +142,11 @@ namespace TCPiperServer
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveSettings();
+        }
+
+        private void buttonRefreshIP_Click(object sender, EventArgs e)
+        {
+            labelIP.Text = Utils.IPinformator.GetMyIp();
         }
     }
 }

@@ -71,6 +71,7 @@
             this.buttonRefreshIP.TabIndex = 100;
             this.buttonRefreshIP.Text = "Refresh";
             this.buttonRefreshIP.UseVisualStyleBackColor = true;
+            this.buttonRefreshIP.Click += new System.EventHandler(this.buttonRefreshIP_Click);
             // 
             // label2
             // 
