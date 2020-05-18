@@ -46,15 +46,20 @@ namespace TCPiperServer.Server
             if(server != null)
             {
                 server.Start();
-                try
-                {
-                    client = new Client.TCPClientWorker( server.AcceptTcpClient());
-                    client.ErrorHappened += OnErrorHappened;
-                    
-                }
-                catch(Exception e) {
-                    ErrorHappened?.Invoke(e.ToString());
-                }
+                
+                
+                    try
+                    {
+                        client = new Client.TCPClientWorker(server.AcceptTcpClient());
+                        client.ErrorHappened += OnErrorHappened;
+
+                    }
+                    catch (Exception e)
+                    {
+                        ErrorHappened?.Invoke(e.ToString());
+                    }
+                
+                
 
                 
             }

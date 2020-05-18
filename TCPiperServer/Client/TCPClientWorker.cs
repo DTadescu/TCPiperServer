@@ -15,7 +15,7 @@ namespace TCPiperServer.Client
 
         private TcpClient client;
         private const int SIZE = 200;
-        private const string testMessage = "Hello, dear friend! There is an excellent weather, doesn't it? " +
+        private const string testMessage = " Hello, dear friend! There is an excellent weather, doesn't it? " +
             "I wish you a good day! Don't worry about little troubles. We are born for a great tasks.";
         int counter = 0;
 
@@ -29,8 +29,8 @@ namespace TCPiperServer.Client
         {
             if(client != null && GetState(client) == TcpState.Established)
             {
-                counter++;
-                byte[] pocket = BitConverter.GetBytes(counter);
+                
+                byte[] pocket = Encoding.ASCII.GetBytes(counter.ToString("D4"));
                 var message = testMessage;
                 if (message.Length > (SIZE - pocket.Length))
                 {
@@ -40,12 +40,34 @@ namespace TCPiperServer.Client
                 byte[] data = new byte[SIZE];
                 pocket.CopyTo(data, 0);
                 array.CopyTo(data, pocket.Length);
-                data[SIZE - 1] = Encoding.ASCII.GetBytes("\n")[0];
-                using(var ws = client.GetStream())
+                data[SIZE - 1] = Encoding.ASCII.GetBytes("\r")[0];
+                data[SIZE - 2] = Encoding.ASCII.GetBytes("\n")[0];
+                try
                 {
-                    await ws.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
-                    await ws.FlushAsync().ConfigureAwait(false);
+
+
+                    var ws = client.GetStream();
+                    
+                        await ws.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                        //await ws.WriteAsync(data, 0, data.Length);
+                        await ws.FlushAsync().ConfigureAwait(false);
+                    
+                    while (client.Available > 0)
+                    {
+                        var rs = client.GetStream();
+                        
+                            //await rs.ReadAsync(data, 0, data.Length);
+                            await rs.ReadAsync(data, 0, data.Length).ConfigureAwait(false);
+                            //await ws.FlushAsync().ConfigureAwait(false);
+                        
+                    }
                 }
+                catch(Exception e)
+                {
+                    ErrorHappened?.Invoke(e.ToString());
+                }
+                counter = counter >= 9999 ? 0 : ++counter;
+
             }
             else
             {
@@ -69,13 +91,21 @@ namespace TCPiperServer.Client
 
         private static TcpState GetState(TcpClient tcpClient)
         {
-            var foo = IPGlobalProperties.GetIPGlobalProperties()
+            try
+            {
+                var foo = IPGlobalProperties.GetIPGlobalProperties()
               .GetActiveTcpConnections()
               .SingleOrDefault(x => x.LocalEndPoint.Equals(tcpClient.Client.LocalEndPoint)
                                  && x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint)
               );
 
-            return foo != null ? foo.State : TcpState.Unknown;
+                return foo != null ? foo.State : TcpState.Unknown;
+            }
+            catch
+            {
+                return TcpState.Unknown;
+            }
+            
         }
     }
 }

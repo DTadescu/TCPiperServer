@@ -180,7 +180,7 @@
             this.Controls.Add(this.labelIP);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MinimizeBox = false;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "TCPiperServer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);

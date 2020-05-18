@@ -51,14 +51,15 @@ namespace TCPiperServer
 
         private void StopServer()
         {
+            timerSend.Stop();
+            counter = 0;
             if (server != null)
             {
                 server.Stop();
                 server.ErrorHappened -= OnErrorHappened;
-                labelStatus.Text = Properties.Settings.Default.Status_noAction;
+                
             }
-            timerSend.Stop();
-            counter = 0;
+            labelStatus.Text = Properties.Settings.Default.Status_noAction;
             busy = false;
             UpdateViewStates();
         }
@@ -90,8 +91,11 @@ namespace TCPiperServer
 
         private void OnErrorHappened(string message)
         {
-            MessageBox.Show(message);
             StopServer();
+            DialogResult result = MessageBox.Show(this, message);
+            if(result == DialogResult.OK)
+            labelStatus.Text = Properties.Settings.Default.Status_noAction;
+
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -117,9 +121,13 @@ namespace TCPiperServer
                 }
                 else
                 {
-                    counter++;
+                    
                     server.client.WriteTestAsync();
-                    labelStatus.Text = Properties.Settings.Default.Status_connected + $"Pocket: {counter}";
+                    if(counter > 0)
+                    {
+                        labelStatus.Text = Properties.Settings.Default.Status_connected + $"Pocket: {counter}";
+                    }
+                    counter = counter > 9999 ? 0 : ++counter;
                 }
             }
         }
